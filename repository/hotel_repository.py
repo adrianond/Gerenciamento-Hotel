@@ -1,15 +1,20 @@
+import sqlite3
 from models.hotel import Hotel
 from venv import logger
 from database.connection import Connection
+from resources.filtros.filtro import normalize_path_params, consulta_sem_cidade, consulta_com_cidade
 
+
+    
+    
 class HotelRepository:
     
     @staticmethod
-    def find_by_id(hotel_id):
+    def find_by_id(id):
          
         try:
             session = Connection.getConnection()
-            return session.query(Hotel).filter_by(hotel_id=hotel_id).first()
+            return session.query(Hotel).filter_by(id=id).first()
             
         except Exception as e:
             logger.error("Erro ao consultar hotel por ID:", e)
@@ -49,38 +54,58 @@ class HotelRepository:
          try:
             session = Connection.getConnection()
             
-            hoteis = session.query(Hotel).all()
-            hoteis_list = []
-            
-            for hotel in hoteis:
-                hotel_objeto = {
-                            'hotel_id': hotel.hotel_id,
-                            'nome': hotel.nome,
-                            'estrelas': hotel.estrelas,
-                            'diaria': hotel.diaria,
-                            'cidade': hotel.cidade
-                } 
-                hoteis_list.append(hotel_objeto) 
-            
-            return hoteis_list
-            
+            return session.query(Hotel).all()
+           
          except Exception as e:
             logger.error("Erro ao consultar hoteis:", e)
     
     
     
     @staticmethod
-    def delete(hotel_id):
+    def delete(id):
          try:
             session = Connection.getConnection()
             
-            hotel = session.query(Hotel).filter_by(hotel_id=hotel_id).first()
+            hotel = session.query(Hotel).filter_by(id=id).first()
             if hotel:
                 session.delete(hotel)
                 session.commit()
-                return {"message": "Hotel id '{}' excluido.".format(hotel_id)}, 200 
-            return {"message": "Hotel id '{}' not exists.".format(hotel_id)}, 404
+                return {"message": "Hotel id '{}' excluido.".format(id)}, 200 
+            return {"message": "Hotel id '{}' not exists.".format(id)}, 404
             
          except Exception as e:
             logger.error("Erro ao excluir hotel:", e)
-            raise Exception("Erro ao excluir hotel:", e)           
+            raise Exception("Erro ao excluir hotel:", e) 
+    
+    
+    
+    @staticmethod
+    def getHoteisByFilter(dados):
+         try:
+            connection = sqlite3.connect('banco.db')
+            cursor = connection.cursor()
+              
+            # retorna um dicionario com os parametros que contenha valores nao nulos
+            dados_validos = {chave:dados[chave] for chave in dados if dados[chave] is not None} 
+            
+            parametros = normalize_path_params(**dados_validos)
+             
+            if not parametros.get('cidade'):
+                consulta = consulta_sem_cidade
+                # obtem os valores do dicionario e inclui em uma tupla para enviar como parametros da consulta
+                tupla = tuple([parametros[chave] for chave in parametros]) 
+               
+            else:
+                consulta = consulta_com_cidade 
+                tupla = tuple([parametros[chave] for chave in parametros])
+                     
+            resultado = cursor.execute(consulta, tupla)
+            return resultado
+            
+         except Exception as e:
+            logger.error("Erro ao consultar hoteis:", e)
+            raise Exception("Erro ao consultar hoteis:", e) 
+    
+    
+    
+                  

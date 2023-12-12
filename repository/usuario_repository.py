@@ -27,6 +27,17 @@ class UsuarioRepository:
             logger.error("Erro ao consultar login do usuario:", e)
             raise Exception("Erro ao consultar login do usuario:", e)
         
+    @staticmethod
+    def find_by_email(email):
+         
+        try:
+            session = Connection.getConnection()
+            return session.query(User).filter_by(email=email).first()
+            
+        except Exception as e:
+            logger.error("Erro ao consultar email do usuario:", e)
+            raise Exception("Erro ao consultar email do usuario:", e)    
+        
         
     
     @staticmethod
@@ -58,4 +69,16 @@ class UsuarioRepository:
             logger.error("Erro ao excluirusuario:", e)
             raise Exception("Erro ao excluir usuario:", e)           
     
+    
+    
+    @staticmethod
+    def update(usuario):
+        try:
+            session = Connection.getConnection()
+            
+            session.merge(usuario)
+            session.commit()
+        except Exception as e:
+            logger.error("Erro ao ativar usuario:", e)
+            raise Exception("Erro ao ativar usuario:", e)      
                

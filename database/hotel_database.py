@@ -4,7 +4,7 @@ from venv import logger
 
 class HotelDatabase():
     
-    cria_tabela = "CREATE TABLE IF NOT EXISTS hoteis (hotel_id text PRIMARY KEY,\
+    cria_tabela = "CREATE TABLE IF NOT EXISTS hoteis (id text PRIMARY KEY,\
             nome text, estrelas real, diaria real, cidade text)"
     
 ################# Cria conexao com banco ##########################    
@@ -48,14 +48,14 @@ class HotelDatabase():
           
 
 ############# Consulta hoteil por ID  ########################   
-    def get_Hotel_by_Id(self, hotel_id): 
+    def get_Hotel_by_Id(self, id): 
         connection = HotelDatabase.getConexion()
         cursor = connection.cursor()
         
         try:
-            query = 'select * from hoteis where hotel_id = ?' 
+            query = 'select * from hoteis where id = ?' 
             
-            cursor.execute(query, (hotel_id,))
+            cursor.execute(query, (id,))
             
             hotel = cursor.fetchall()
             
@@ -90,8 +90,8 @@ class HotelDatabase():
         cursor.execute(HotelDatabase.cria_tabela)
          
         try: 
-            cursor.execute('insert into hoteis(hotel_id, nome, estrelas, diaria, cidade)\
-                 VALUES (?, ?, ?, ?, ?)', (hotel_objeto.hotel_id, hotel_objeto.nome, hotel_objeto.estrelas, \
+            cursor.execute('insert into hoteis(id, nome, estrelas, diaria, cidade)\
+                 VALUES (?, ?, ?, ?, ?)', (hotel_objeto.id, hotel_objeto.nome, hotel_objeto.estrelas, \
                     hotel_objeto.diaria, hotel_objeto.cidade))   
         
             connection.commit()
@@ -110,7 +110,7 @@ class HotelDatabase():
         
         
 ############# Atualiza hotel  ########################      
-    def update_Hotel(self, hotel_id, hotel_objeto):
+    def update_Hotel(self, id, hotel_objeto):
         connection = HotelDatabase.getConexion()
         cursor = connection.cursor()
         
@@ -118,9 +118,9 @@ class HotelDatabase():
          
         try: 
             update_query = """update hoteis set nome = ?, \
-                estrelas = ?, diaria = ?, cidade = ? where hotel_id = ?"""
+                estrelas = ?, diaria = ?, cidade = ? where id = ?"""
             
-            data = (hotel_objeto.nome, hotel_objeto.estrelas, hotel_objeto.diaria, hotel_objeto.cidade, hotel_id)
+            data = (hotel_objeto.nome, hotel_objeto.estrelas, hotel_objeto.diaria, hotel_objeto.cidade, id)
             cursor.execute(update_query, data)
             
             connection.commit()
@@ -138,14 +138,14 @@ class HotelDatabase():
         
         
 ############# Exclui hoteil por ID  ########################   
-    def delete_Hotel_by_Id(self, hotel_id): 
+    def delete_Hotel_by_Id(self, id): 
         connection = HotelDatabase.getConexion()
         cursor = connection.cursor()
         
         try:
-            query = 'delete from hoteis where hotel_id = ?'
+            query = 'delete from hoteis where id = ?'
             
-            cursor.execute(query, (hotel_id,))
+            cursor.execute(query, (id,))
             
             connection.commit()
             cursor.close()
