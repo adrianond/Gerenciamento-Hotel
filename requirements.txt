@@ -1,0 +1,7 @@
+Flask
+Flask-RESTfull
+Flask-JWT-Extended
+Flask-SQLAlchemy
+requests
+gunicorn
+venv
